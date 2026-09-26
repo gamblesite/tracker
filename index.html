@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Split-Screen Bet Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Split Screen Bet Hub</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,193 +11,160 @@
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
 
         body {
             background-color: #000;
             color: #fff;
             height: 100vh;
-            width: 100vw;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: fixed;
-        }
-
-        .game-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
             position: relative;
         }
 
-        .player-section {
+        /* Player Side Containers */
+        .player-side {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 10px 16px;
+            padding: 20px;
             text-align: center;
             position: relative;
-            touch-action: manipulation;
         }
 
-        /* Red Side (Top - Flipped 180 degrees) */
-        .player-red {
-            background: linear-gradient(135deg, #2b0c0c 0%, #150303 100%);
-            border-bottom: 2px solid #451515;
+        /* Red Side (Top) - Flipped 180 degrees */
+        .player-1 {
+            background: linear-gradient(135deg, #3a1c1c 0%, #1c1c1e 100%);
+            border-bottom: 2px solid #ff3b30;
             transform: rotate(180deg);
         }
 
-        /* Blue Side (Bottom - Upright) */
-        .player-blue {
-            background: linear-gradient(135deg, #0c1c2b 0%, #030810 100%);
+        .player-1 .unflipped {
+            transform: rotate(180deg);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .player-header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        /* Blue Side (Bottom) - Upright */
+        .player-2 {
+            background: linear-gradient(135deg, #1c2c3a 0%, #1c1c1e 100%);
+        }
+
+        .player-name-container {
             margin-bottom: 4px;
         }
 
         .player-name {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             background: none;
             border: none;
             color: #fff;
             text-align: center;
-            border-bottom: 1px dashed rgba(255,255,255,0.3);
-            padding: 2px 6px;
-            width: 130px;
+            border-bottom: 1px dashed transparent;
         }
 
         .player-name:focus {
-            border-bottom: 1px dashed #38bdf8;
+            border-bottom: 1px dashed #007aff;
             outline: none;
         }
 
         .balance {
-            font-size: 32px;
+            font-size: 42px;
             font-weight: 800;
             letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+            max-width: 260px;
             margin-bottom: 6px;
-        }
-
-        .controls-wrapper {
-            width: 100%;
-            max-width: 280px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .button-row {
-            display: flex;
-            gap: 4px;
-            width: 100%;
         }
 
         .btn-action {
             flex: 1;
-            padding: 6px 2px;
-            border-radius: 6px;
+            padding: 8px 4px;
+            border-radius: 8px;
             border: none;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
+            background: #2c2c2e;
             color: #fff;
-            transition: opacity 0.1s;
         }
+
+        .player-1 .btn-action { background: #ff3b30; }
+        .player-2 .btn-action { background: #007aff; }
 
         .btn-action:active { opacity: 0.7; }
         .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .btn-red { background: #ef4444; }
-        .btn-red-take { background: #7f1d1d; font-size: 10px; }
-        
-        .btn-blue { background: #3b82f6; }
-        .btn-blue-take { background: #1e3a8a; font-size: 10px; }
-
+        /* Ready Button */
         .btn-ready {
-            background: #3f3f46;
-            color: #fff;
-            font-size: 11px;
-            padding: 5px;
-            border-radius: 6px;
+            width: 100%;
+            max-width: 260px;
+            padding: 8px;
+            border-radius: 8px;
             border: none;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 2px;
+            background: #3a3a3c;
+            color: #fff;
+            transition: background 0.2s;
         }
 
-        .btn-ready.ready {
-            background: #22c55e;
-            color: #000;
-        }
+        .player-1 .btn-ready.ready { background: #ff3b30; }
+        .player-2 .btn-ready.ready { background: #34c759; }
 
+        /* Central Floating Pot HUD */
         .central-hud {
             position: absolute;
             top: 62%;
             left: 85px;
             transform: translateY(-50%) rotate(-90deg);
-            transform-origin: left center;
-            background: #18181b;
-            border: 2px solid #3f3f46;
-            border-radius: 14px;
-            padding: 10px 14px;
+            background: #1c1c1e;
+            border: 2px solid #3a3a3c;
+            border-radius: 20px;
+            padding: 12px 16px;
             text-align: center;
-            z-index: 30;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.9);
-            width: 160px;
+            z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            width: 200px;
+            transform-origin: left center;
         }
 
         .pot-title {
-            font-size: 9px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #a1a1aa;
-            margin-bottom: 1px;
+            color: #8e8e93;
+            margin-bottom: 2px;
         }
 
         .pot-amount {
             font-size: 22px;
             font-weight: 800;
-            color: #facc15;
+            color: #ffcc00;
             margin-bottom: 6px;
         }
 
         .pot-buttons {
             display: flex;
-            flex-direction: column;
             gap: 4px;
-            margin-bottom: 4px;
         }
 
         .pot-buttons button {
-            padding: 5px 4px;
-            border-radius: 6px;
-            border: none;
-            font-size: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #fff;
-        }
-
-        .btn-award-red { background: #ef4444; }
-        .btn-award-blue { background: #3b82f6; }
-        
-        .btn-tie {
-            width: 100%;
-            background: #52525b;
-            color: #fff;
-            padding: 5px 4px;
+            flex: 1;
+            padding: 6px 0;
             border-radius: 6px;
             border: none;
             font-size: 10px;
@@ -206,158 +172,122 @@
             cursor: pointer;
         }
 
+        .btn-award-1 { background: #ff3b30; color: #fff; }
+        .btn-award-2 { background: #007aff; color: #fff; }
+        .btn-tie { background: #8e8e93; color: #fff; width: 100%; }
+
+        /* Timer Banner */
         .timer-banner {
             position: absolute;
-            top: 4px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 9px;
-            color: #a1a1aa;
-            background: rgba(255,255,255,0.06);
+            top: 6px;
+            right: 10px;
+            font-size: 10px;
+            color: #8e8e93;
+            background: rgba(255,255,255,0.05);
             padding: 2px 8px;
             border-radius: 20px;
-            z-index: 10;
-        }
-
-        .lock-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            display: none;
-            justify-content: center;
-            align-items: center;
             z-index: 5;
-            pointer-events: none;
-        }
-
-        .lock-overlay.active {
-            display: flex;
-        }
-
-        .lock-badge {
-            background: #eab308;
-            color: #000;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-    <div class="timer-banner" id="timerBanner">Next $1k Refill: --:--:--</div>
+    <div class="timer-banner" id="timerBanner">Refill: --:--:--</div>
 
-    <!-- Rotated Left-Center Pot HUD -->
+    <!-- Player 1 Side (Top - Red & Flipped) -->
+    <div class="player-side player-1">
+        <div class="unflipped">
+            <div class="player-name-container">
+                <input type="text" id="name1" class="player-name" value="Red Player" onchange="saveNames()">
+            </div>
+            <div class="balance" id="balance1">$1000</div>
+            <div class="action-row">
+                <button class="btn-action bet-btn-1" onclick="betToPot(1, 10)">Bet 10</button>
+                <button class="btn-action bet-btn-1" onclick="betToPot(1, 50)">Bet 50</button>
+                <button class="btn-action bet-btn-1" onclick="betToPot(1, 100)">Bet 100</button>
+                <button class="btn-action bet-btn-1" onclick="takeBack(1)">Take Back</button>
+            </div>
+            <button class="btn-ready" id="readyBtn1" onclick="toggleReady(1)">Ready Up</button>
+        </div>
+    </div>
+
+    <!-- Central Pot HUD -->
     <div class="central-hud">
         <div class="pot-title">The Pot</div>
         <div class="pot-amount" id="potAmount">$0</div>
-        <div class="pot-buttons">
-            <button class="btn-award-red" onclick="awardPot('red')">Red Wins</button>
-            <button class="btn-award-blue" onclick="awardPot('blue')">Blue Wins</button>
+        <div class="pot-buttons" style="margin-bottom: 4px;">
+            <button class="btn-award-1" onclick="awardPot(1)">Red Wins</button>
+            <button class="btn-award-2" onclick="awardPot(2)">Blue Wins</button>
         </div>
-        <button class="btn-tie" onclick="tiePot()">Tie / Push</button>
+        <div class="pot-buttons">
+            <button class="btn-tie" onclick="tiePot()">Tie / Push</button>
+        </div>
     </div>
 
-    <div class="game-container">
-        <!-- Red Player Side (Top - Flipped 180 Degrees) -->
-        <div class="player-section player-red" id="sideRed">
-            <div class="lock-overlay" id="lockRed"><div class="lock-badge">Locked In</div></div>
-            <div class="player-header">
-                <input type="text" id="nameRed" class="player-name" value="Red Player" autocomplete="off">
-            </div>
-            <div class="balance" id="balanceRed">$1000</div>
-            <div class="controls-wrapper">
-                <div class="button-row">
-                    <button class="btn-action btn-red" onclick="bet('red', 10)">+$10</button>
-                    <button class="btn-action btn-red" onclick="bet('red', 50)">+$50</button>
-                    <button class="btn-action btn-red" onclick="bet('red', 100)">+$100</button>
-                </div>
-                <div class="button-row">
-                    <button class="btn-action btn-red-take" onclick="takeBack('red', 10)">-$10</button>
-                    <button class="btn-action btn-red-take" onclick="takeBack('red', 50)">-$50</button>
-                    <button class="btn-action btn-red-take" onclick="takeBack('red', 100)">-$100</button>
-                </div>
-                <button class="btn-ready" id="readyBtnRed" onclick="toggleReady('red')">Ready Up</button>
-            </div>
+    <!-- Player 2 Side (Bottom - Blue & Upright) -->
+    <div class="player-side player-2">
+        <div class="player-name-container">
+            <input type="text" id="name2" class="player-name" value="Blue Player" onchange="saveNames()">
         </div>
-
-        <!-- Blue Player Side (Bottom - Upright) -->
-        <div class="player-section player-blue" id="sideBlue">
-            <div class="lock-overlay" id="lockBlue"><div class="lock-badge">Locked In</div></div>
-            <div class="player-header">
-                <input type="text" id="nameBlue" class="player-name" value="Blue Player" autocomplete="off">
-            </div>
-            <div class="balance" id="balanceBlue">$1000</div>
-            <div class="controls-wrapper">
-                <div class="button-row">
-                    <button class="btn-action btn-blue" onclick="bet('blue', 10)">+$10</button>
-                    <button class="btn-action btn-blue" onclick="bet('blue', 50)">+$50</button>
-                    <button class="btn-action btn-blue" onclick="bet('blue', 100)">+$100</button>
-                </div>
-                <div class="button-row">
-                    <button class="btn-action btn-blue-take" onclick="takeBack('blue', 10)">-$10</button>
-                    <button class="btn-action btn-blue-take" onclick="takeBack('blue', 50)">-$50</button>
-                    <button class="btn-action btn-blue-take" onclick="takeBack('blue', 100)">-$100</button>
-                </div>
-                <button class="btn-ready" id="readyBtnBlue" onclick="toggleReady('blue')">Ready Up</button>
-            </div>
+        <div class="balance" id="balance2">$1000</div>
+        <div class="action-row">
+            <button class="btn-action bet-btn-2" onclick="betToPot(2, 10)">Bet 10</button>
+            <button class="btn-action bet-btn-2" onclick="betToPot(2, 50)">Bet 50</button>
+            <button class="btn-action bet-btn-2" onclick="betToPot(2, 100)">Bet 100</button>
+            <button class="btn-action bet-btn-2" onclick="takeBack(2)">Take Back</button>
         </div>
+        <button class="btn-ready" id="readyBtn2" onclick="toggleReady(2)">Ready Up</button>
     </div>
 
     <script>
         let state = {
-            nameRed: "Red Player",
-            nameBlue: "Blue Player",
-            balanceRed: 1000,
-            balanceBlue: 1000,
-            contributedRed: 0,
-            contributedBlue: 0,
+            name1: "Red Player",
+            name2: "Blue Player",
+            balance1: 1000,
+            balance2: 1000,
             pot: 0,
-            readyRed: false,
-            readyBlue: false,
+            contributed1: 0,
+            contributed2: 0,
+            ready1: false,
+            ready2: false,
             lastRefillTime: Date.now()
         };
 
-        const REFILL_INTERVAL = 24 * 60 * 60 * 1000;
+        const REFILL_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
         window.onload = function() {
             loadState();
             checkDailyRefill();
             updateUI();
             setInterval(updateTimerDisplay, 1000);
-
-            document.getElementById('nameRed').addEventListener('input', (e) => {
-                state.nameRed = e.target.value;
-                saveState();
-            });
-            document.getElementById('nameBlue').addEventListener('input', (e) => {
-                state.nameBlue = e.target.value;
-                saveState();
-            });
         };
 
         function saveState() {
-            localStorage.setItem('split_bet_hub_rotpot_v1', JSON.stringify(state));
+            try {
+                localStorage.setItem('split_bet_hub_v3_state', JSON.stringify(state));
+            } catch(e) {
+                console.error("Storage save failed", e);
+            }
         }
 
         function loadState() {
-            const saved = localStorage.getItem('split_bet_hub_rotpot_v1');
+            const saved = localStorage.getItem('split_bet_hub_v3_state');
             if (saved) {
                 try {
-                    state = JSON.parse(saved);
-                } catch(e) { console.error(e); }
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                } catch(e) { console.error("Storage load failed", e); }
             }
         }
 
         function checkDailyRefill() {
             const now = Date.now();
             const elapsed = now - state.lastRefillTime;
-            if (elapsed >= REFILL_INTERVAL || isNaN(elapsed)) {
+
+            if (elapsed >= REFILL_INTERVAL || isNaN(elapsed) || state.lastRefillTime > now) {
                 const cycles = Math.max(1, Math.floor(elapsed / REFILL_INTERVAL));
-                state.balanceRed += (1000 * cycles);
-                state.balanceBlue += (1000 * cycles);
+                state.balance1 += (1000 * cycles);
+                state.balance2 += (1000 * cycles);
                 state.lastRefillTime = now;
                 saveState();
             }
@@ -365,104 +295,108 @@
 
         function updateTimerDisplay() {
             const now = Date.now();
-            const nextTime = state.lastRefillTime + REFILL_INTERVAL;
-            let timeLeft = nextTime - now;
+            const nextRefillTime = state.lastRefillTime + REFILL_INTERVAL;
+            let timeLeft = nextRefillTime - now;
+
             if (timeLeft <= 0) {
                 checkDailyRefill();
                 timeLeft = REFILL_INTERVAL;
             }
+
             const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
             const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
             const seconds = Math.floor((timeLeft / 1000) % 60);
 
             document.getElementById('timerBanner').innerText = 
-                `Next $1k Refill: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                `Refill: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
         function updateUI() {
-            if (document.activeElement !== document.getElementById('nameRed')) {
-                document.getElementById('nameRed').value = state.nameRed;
-            }
-            if (document.activeElement !== document.getElementById('nameBlue')) {
-                document.getElementById('nameBlue').value = state.nameBlue;
-            }
-
-            document.getElementById('balanceRed').innerText = '$' + state.balanceRed;
-            document.getElementById('balanceBlue').innerText = '$' + state.balanceBlue;
+            document.getElementById('name1').value = state.name1;
+            document.getElementById('name2').value = state.name2;
+            document.getElementById('balance1').innerText = '$' + state.balance1;
+            document.getElementById('balance2').innerText = '$' + state.balance2;
             document.getElementById('potAmount').innerText = '$' + state.pot;
 
-            const btnRed = document.getElementById('readyBtnRed');
-            const btnBlue = document.getElementById('readyBtnBlue');
-            const lockRed = document.getElementById('lockRed');
-            const lockBlue = document.getElementById('lockBlue');
+            const btn1 = document.getElementById('readyBtn1');
+            const btn2 = document.getElementById('readyBtn2');
 
-            if (state.readyRed) {
-                btnRed.innerText = "Ready!";
-                btnRed.classList.add('ready');
-                lockRed.classList.add('active');
+            if (state.ready1) {
+                btn1.innerText = "Ready!";
+                btn1.classList.add('ready');
             } else {
-                btnRed.innerText = "Ready Up";
-                btnRed.classList.remove('ready');
-                lockRed.classList.remove('active');
+                btn1.innerText = "Ready Up";
+                btn1.classList.remove('ready');
             }
 
-            if (state.readyBlue) {
-                btnBlue.innerText = "Ready!";
-                btnBlue.classList.add('ready');
-                lockBlue.classList.add('active');
+            if (state.ready2) {
+                btn2.innerText = "Ready!";
+                btn2.classList.add('ready');
             } else {
-                btnBlue.innerText = "Ready Up";
-                btnBlue.classList.remove('ready');
-                lockBlue.classList.remove('active');
+                btn2.innerText = "Ready Up";
+                btn2.classList.remove('ready');
             }
+
+            // Lock/Unlock betting controls if both are ready
+            const locked = (state.ready1 && state.ready2);
+            const betButtons = document.querySelectorAll('.bet-btn-1, .bet-btn-2');
+            betButtons.forEach(b => b.disabled = locked);
+        }
+
+        function saveNames() {
+            state.name1 = document.getElementById('name1').value;
+            state.name2 = document.getElementById('name2').value;
+            saveState();
         }
 
         function toggleReady(player) {
-            if (player === 'red') {
-                state.readyRed = !state.readyRed;
+            if (player === 1) {
+                state.ready1 = !state.ready1;
             } else {
-                state.readyBlue = !state.readyBlue;
+                state.ready2 = !state.ready2;
             }
             saveState();
             updateUI();
         }
 
-        function bet(player, amount) {
-            if (state.readyRed && state.readyBlue) return;
+        function betToPot(player, amount) {
+            if (state.ready1 && state.ready2) return; // Locked
 
-            if (player === 'red') {
-                if (state.balanceRed >= amount) {
-                    state.balanceRed -= amount;
-                    state.contributedRed += amount;
+            if (player === 1) {
+                if (state.balance1 >= amount) {
+                    state.balance1 -= amount;
                     state.pot += amount;
+                    state.contributed1 += amount;
                 }
             } else {
-                if (state.balanceBlue >= amount) {
-                    state.balanceBlue -= amount;
-                    state.contributedBlue += amount;
+                if (state.balance2 >= amount) {
+                    state.balance2 -= amount;
                     state.pot += amount;
+                    state.contributed2 += amount;
                 }
             }
             saveState();
             updateUI();
         }
 
-        function takeBack(player, amount) {
-            if (state.readyRed && state.readyBlue) return;
+        function takeBack(player) {
+            if (state.ready1 && state.ready2) return; // Locked
 
-            if (player === 'red') {
-                const refund = Math.min(amount, state.contributedRed);
-                if (refund > 0) {
-                    state.balanceRed += refund;
-                    state.contributedRed -= refund;
-                    state.pot -= refund;
+            if (player === 1) {
+                if (state.contributed1 > 0) {
+                    let amount = Math.min(10, state.contributed1); // default take back increment or all
+                    // To make it simple, let's refund their full contribution or let them take back chunks. Let's refund all contributed for simplicity:
+                    amount = state.contributed1; 
+                    state.balance1 += amount;
+                    state.pot -= amount;
+                    state.contributed1 = 0;
                 }
             } else {
-                const refund = Math.min(amount, state.contributedBlue);
-                if (refund > 0) {
-                    state.balanceBlue += refund;
-                    state.contributedBlue -= refund;
-                    state.pot -= refund;
+                if (state.contributed2 > 0) {
+                    let amount = state.contributed2;
+                    state.balance2 += amount;
+                    state.pot -= amount;
+                    state.contributed2 = 0;
                 }
             }
             saveState();
@@ -472,10 +406,10 @@
         function awardPot(player) {
             if (state.pot <= 0) return;
 
-            if (player === 'red') {
-                state.balanceRed += state.pot;
+            if (player === 1) {
+                state.balance1 += state.pot;
             } else {
-                state.balanceBlue += state.pot;
+                state.balance2 += state.pot;
             }
 
             resetRound();
@@ -484,16 +418,15 @@
         function tiePot() {
             if (state.pot <= 0) return;
 
-            const refundRed = state.contributedRed;
-            const refundBlue = state.contributedBlue;
+            // Refund exact contributed amounts back to each player
+            state.balance1 += state.contributed1;
+            state.balance2 += state.contributed2;
 
-            if (refundRed + refundBlue === state.pot) {
-                state.balanceRed += refundRed;
-                state.balanceBlue += refundBlue;
-            } else {
-                const half = Math.floor(state.pot / 2);
-                state.balanceRed += half;
-                state.balanceBlue += (state.pot - half);
+            // If there's any leftover odd change in pot, split evenly
+            let remainder = state.pot - (state.contributed1 + state.contributed2);
+            if (remainder > 0) {
+                state.balance1 += Math.floor(remainder / 2);
+                state.balance2 += Math.ceil(remainder / 2);
             }
 
             resetRound();
@@ -501,10 +434,10 @@
 
         function resetRound() {
             state.pot = 0;
-            state.contributedRed = 0;
-            state.contributedBlue = 0;
-            state.readyRed = false;
-            state.readyBlue = false;
+            state.contributed1 = 0;
+            state.contributed2 = 0;
+            state.ready1 = false;
+            state.ready2 = false;
             saveState();
             updateUI();
         }
