@@ -35,19 +35,11 @@
             position: relative;
         }
 
-        /* Red Side (Top) - Flipped 180 degrees */
+        /* Red Side (Top) - Flipped 180 degrees for face-to-face play */
         .player-1 {
             background: linear-gradient(135deg, #3a1c1c 0%, #1c1c1e 100%);
             border-bottom: 2px solid #ff3b30;
             transform: rotate(180deg);
-        }
-
-        .player-1 .unflipped {
-            transform: rotate(180deg);
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         /* Blue Side (Bottom) - Upright */
@@ -125,7 +117,7 @@
         .player-1 .btn-ready.ready { background: #ff3b30; }
         .player-2 .btn-ready.ready { background: #34c759; }
 
-        /* Central Floating Pot HUD */
+        /* Central Floating Pot HUD - Left & Rotated 90 deg counter-clockwise */
         .central-hud {
             position: absolute;
             top: 62%;
@@ -194,21 +186,19 @@
 
     <div class="timer-banner" id="timerBanner">Refill: --:--:--</div>
 
-    <!-- Player 1 Side (Top - Red & Flipped) -->
+    <!-- Player 1 Side (Top - Red & Flipped 180deg) -->
     <div class="player-side player-1">
-        <div class="unflipped">
-            <div class="player-name-container">
-                <input type="text" id="name1" class="player-name" value="Red Player" onchange="saveNames()">
-            </div>
-            <div class="balance" id="balance1">$1000</div>
-            <div class="action-row">
-                <button class="btn-action bet-btn-1" onclick="betToPot(1, 10)">Bet 10</button>
-                <button class="btn-action bet-btn-1" onclick="betToPot(1, 50)">Bet 50</button>
-                <button class="btn-action bet-btn-1" onclick="betToPot(1, 100)">Bet 100</button>
-                <button class="btn-action bet-btn-1" onclick="takeBack(1)">Take Back</button>
-            </div>
-            <button class="btn-ready" id="readyBtn1" onclick="toggleReady(1)">Ready Up</button>
+        <div class="player-name-container">
+            <input type="text" id="name1" class="player-name" value="Red Player" onchange="saveNames()">
         </div>
+        <div class="balance" id="balance1">$1000</div>
+        <div class="action-row">
+            <button class="btn-action bet-btn-1" onclick="betToPot(1, 10)">Bet 10</button>
+            <button class="btn-action bet-btn-1" onclick="betToPot(1, 50)">Bet 50</button>
+            <button class="btn-action bet-btn-1" onclick="betToPot(1, 100)">Bet 100</button>
+            <button class="btn-action bet-btn-1" onclick="takeBack(1)">Take Back</button>
+        </div>
+        <button class="btn-ready" id="readyBtn1" onclick="toggleReady(1)">Ready Up</button>
     </div>
 
     <!-- Central Pot HUD -->
@@ -264,14 +254,14 @@
 
         function saveState() {
             try {
-                localStorage.setItem('split_bet_hub_v3_state', JSON.stringify(state));
+                localStorage.setItem('split_bet_hub_v4_state', JSON.stringify(state));
             } catch(e) {
                 console.error("Storage save failed", e);
             }
         }
 
         function loadState() {
-            const saved = localStorage.getItem('split_bet_hub_v3_state');
+            const saved = localStorage.getItem('split_bet_hub_v4_state');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -337,7 +327,6 @@
                 btn2.classList.remove('ready');
             }
 
-            // Lock/Unlock betting controls if both are ready
             const locked = (state.ready1 && state.ready2);
             const betButtons = document.querySelectorAll('.bet-btn-1, .bet-btn-2');
             betButtons.forEach(b => b.disabled = locked);
@@ -360,7 +349,7 @@
         }
 
         function betToPot(player, amount) {
-            if (state.ready1 && state.ready2) return; // Locked
+            if (state.ready1 && state.ready2) return;
 
             if (player === 1) {
                 if (state.balance1 >= amount) {
@@ -380,13 +369,11 @@
         }
 
         function takeBack(player) {
-            if (state.ready1 && state.ready2) return; // Locked
+            if (state.ready1 && state.ready2) return;
 
             if (player === 1) {
                 if (state.contributed1 > 0) {
-                    let amount = Math.min(10, state.contributed1); // default take back increment or all
-                    // To make it simple, let's refund their full contribution or let them take back chunks. Let's refund all contributed for simplicity:
-                    amount = state.contributed1; 
+                    let amount = state.contributed1;
                     state.balance1 += amount;
                     state.pot -= amount;
                     state.contributed1 = 0;
@@ -418,11 +405,9 @@
         function tiePot() {
             if (state.pot <= 0) return;
 
-            // Refund exact contributed amounts back to each player
             state.balance1 += state.contributed1;
             state.balance2 += state.contributed2;
 
-            // If there's any leftover odd change in pot, split evenly
             let remainder = state.pot - (state.contributed1 + state.contributed2);
             if (remainder > 0) {
                 state.balance1 += Math.floor(remainder / 2);
