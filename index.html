@@ -26,347 +26,338 @@
             position: fixed;
         }
 
-        .player-side {
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        .player-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 12px;
+            padding: 10px 16px;
             text-align: center;
             position: relative;
             touch-action: manipulation;
-            transition: background 0.3s;
         }
 
-        /* Player 1 Theme: Red */
-        .player-1 {
-            background: linear-gradient(135deg, #2b0c0c 0%, #1a0505 100%);
-            border-bottom: 2px solid #5c1d1d;
-        }
-
-        /* Player 2 Theme: Blue & Flipped */
-        .player-2 {
-            background: linear-gradient(135deg, #0c1a2b 0%, #050d1a 100%);
+        /* Red Side (Top - Flipped 180 degrees) */
+        .player-red {
+            background: linear-gradient(135deg, #2b0c0c 0%, #150303 100%);
+            border-bottom: 2px solid #451515;
             transform: rotate(180deg);
         }
 
-        .player-2 .unflipped {
-            transform: rotate(180deg);
-            width: 100%;
+        /* Blue Side (Bottom - Upright) */
+        .player-blue {
+            background: linear-gradient(135deg, #0c1c2b 0%, #030810 100%);
+        }
+
+        .player-header {
             display: flex;
-            flex-direction: column;
             align-items: center;
-        }
-
-        .player-name-container {
-            margin-bottom: 2px;
-            width: 100%;
-            display: flex;
             justify-content: center;
+            gap: 8px;
+            margin-bottom: 4px;
         }
 
         .player-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            background: none;
+            border: none;
             color: #fff;
             text-align: center;
-            padding: 3px 10px;
-            width: 150px;
+            border-bottom: 1px dashed rgba(255,255,255,0.3);
+            padding: 2px 6px;
+            width: 130px;
+        }
+
+        .player-name:focus {
+            border-bottom: 1px dashed #38bdf8;
             outline: none;
-            user-select: text;
-            -webkit-user-select: text;
-        }
-
-        .player-1 .player-name:focus {
-            border-color: #ff3b30;
-        }
-
-        .player-2 .player-name:focus {
-            border-color: #007aff;
         }
 
         .balance {
-            font-size: 34px;
+            font-size: 32px;
             font-weight: 800;
             letter-spacing: -1px;
             margin-bottom: 6px;
         }
 
-        .controls-group {
+        .controls-wrapper {
+            width: 100%;
+            max-width: 280px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            width: 100%;
-            max-width: 270px;
+            gap: 4px;
         }
 
-        .action-row {
+        .button-row {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             width: 100%;
-        }
-
-        /* Red Theme Buttons */
-        .player-1 .btn-action {
-            background: #ff3b30;
-            box-shadow: 0 3px 10px rgba(255, 59, 48, 0.3);
-        }
-        .player-1 .btn-takeback {
-            background: #b22222;
-            box-shadow: 0 3px 10px rgba(178, 34, 34, 0.3);
-        }
-
-        /* Blue Theme Buttons */
-        .player-2 .btn-action {
-            background: #007aff;
-            box-shadow: 0 3px 10px rgba(0, 122, 255, 0.3);
-        }
-        .player-2 .btn-takeback {
-            background: #104e8b;
-            box-shadow: 0 3px 10px rgba(16, 78, 139, 0.3);
         }
 
         .btn-action {
             flex: 1;
-            padding: 8px 0;
-            border-radius: 10px;
+            padding: 6px 2px;
+            border-radius: 6px;
             border: none;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700;
             cursor: pointer;
             color: #fff;
-            transition: transform 0.1s, opacity 0.1s;
+            transition: opacity 0.1s;
         }
 
+        .btn-action:active { opacity: 0.7; }
+        .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .btn-red { background: #ef4444; }
+        .btn-red-take { background: #7f1d1d; font-size: 10px; }
+        
+        .btn-blue { background: #3b82f6; }
+        .btn-blue-take { background: #1e3a8a; font-size: 10px; }
+
         .btn-ready {
-            background: #3a3a3c;
+            background: #3f3f46;
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: none;
-            flex: 1;
-            padding: 8px 0;
-            border-radius: 10px;
-            font-size: 13px;
+            font-size: 11px;
+            padding: 5px;
+            border-radius: 6px;
+            border: none;
             font-weight: 700;
             cursor: pointer;
+            margin-top: 2px;
         }
 
         .btn-ready.ready {
-            background: #34c759;
-            color: #fff;
-            box-shadow: 0 3px 10px rgba(52, 199, 89, 0.4);
-        }
-
-        .btn-action:active, .btn-ready:active {
-            transform: scale(0.96);
-            opacity: 0.8;
-        }
-
-        .btn-action:disabled, .btn-ready:disabled {
-            background: #2c2c2e;
-            color: #636366;
-            box-shadow: none;
-            cursor: not-allowed;
-            border-color: transparent;
+            background: #22c55e;
+            color: #000;
         }
 
         .central-hud {
             position: absolute;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #1c1c1e;
-            border: 2px solid #3a3a3c;
-            border-radius: 18px;
-            padding: 8px 14px;
+            left: 10px;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: left center;
+            background: #18181b;
+            border: 2px solid #3f3f46;
+            border-radius: 14px;
+            padding: 10px 14px;
             text-align: center;
-            z-index: 10;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            width: 200px;
+            z-index: 30;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.9);
+            width: 160px;
         }
 
         .pot-title {
             font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #8e8e93;
+            color: #a1a1aa;
             margin-bottom: 1px;
         }
 
         .pot-amount {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
-            color: #ffcc00;
+            color: #facc15;
             margin-bottom: 6px;
         }
 
         .pot-buttons {
             display: flex;
-            gap: 6px;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 4px;
         }
 
         .pot-buttons button {
-            flex: 1;
-            padding: 5px 0;
+            padding: 5px 4px;
             border-radius: 6px;
             border: none;
             font-size: 10px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.1s;
+            color: #fff;
         }
 
-        .pot-buttons button:active {
-            transform: scale(0.95);
+        .btn-award-red { background: #ef4444; }
+        .btn-award-blue { background: #3b82f6; }
+        
+        .btn-tie {
+            width: 100%;
+            background: #52525b;
+            color: #fff;
+            padding: 5px 4px;
+            border-radius: 6px;
+            border: none;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
         }
-
-        .btn-award-1 { background: #ff3b30; color: #fff; }
-        .btn-award-2 { background: #007aff; color: #fff; }
 
         .timer-banner {
             position: absolute;
-            top: 6px;
+            top: 4px;
             left: 50%;
             transform: translateX(-50%);
             font-size: 9px;
-            color: #8e8e93;
-            background: rgba(255,255,255,0.08);
+            color: #a1a1aa;
+            background: rgba(255,255,255,0.06);
             padding: 2px 8px;
             border-radius: 20px;
-            z-index: 5;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
+            z-index: 10;
         }
 
-        .status-banner {
+        .lock-overlay {
             position: absolute;
-            top: 26px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 9px;
-            color: #ffcc00;
-            background: rgba(255, 204, 0, 0.15);
-            padding: 2px 8px;
-            border-radius: 12px;
-            z-index: 5;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
             display: none;
-            font-weight: 600;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .lock-overlay.active {
+            display: flex;
+        }
+
+        .lock-badge {
+            background: #eab308;
+            color: #000;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
     <div class="timer-banner" id="timerBanner">Next $1k Refill: --:--:--</div>
-    <div class="status-banner" id="statusBanner">🔒 BOTH PLAYERS READY - BETS LOCKED</div>
 
-    <!-- Player 1: RED THEME -->
-    <div class="player-side player-1" id="side1">
-        <div class="player-name-container">
-            <input type="text" id="name1" class="player-name" value="Player 1" maxlength="15">
-        </div>
-        <div class="balance" id="balance1">$1000</div>
-        <div class="controls-group">
-            <div class="action-row">
-                <button class="btn-action" id="bet1-10">Bet $10</button>
-                <button class="btn-action" id="bet1-50">Bet $50</button>
-                <button class="btn-action" id="bet1-100">Bet $100</button>
-            </div>
-            <div class="action-row">
-                <button class="btn-action btn-takeback" id="take1-10">Take -$10</button>
-                <button class="btn-action btn-takeback" id="take1-50">Take -$50</button>
-                <button class="btn-ready" id="ready1">Ready Up</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Central Pot -->
+    <!-- Rotated Left-Center Pot HUD -->
     <div class="central-hud">
         <div class="pot-title">The Pot</div>
         <div class="pot-amount" id="potAmount">$0</div>
         <div class="pot-buttons">
-            <button class="btn-award-1" id="award1">Red Wins</button>
-            <button class="btn-award-2" id="award2">Blue Wins</button>
+            <button class="btn-award-red" onclick="awardPot('red')">Red Wins</button>
+            <button class="btn-award-blue" onclick="awardPot('blue')">Blue Wins</button>
         </div>
+        <button class="btn-tie" onclick="tiePot()">Tie / Push</button>
     </div>
 
-    <!-- Player 2: BLUE THEME & FLIPPED -->
-    <div class="player-side player-2" id="side2">
-        <div class="unflipped">
-            <div class="player-name-container">
-                <input type="text" id="name2" class="player-name" value="Player 2" maxlength="15">
+    <div class="game-container">
+        <!-- Red Player Side (Top - Flipped 180 Degrees) -->
+        <div class="player-section player-red" id="sideRed">
+            <div class="lock-overlay" id="lockRed"><div class="lock-badge">Locked In</div></div>
+            <div class="player-header">
+                <input type="text" id="nameRed" class="player-name" value="Red Player" autocomplete="off">
             </div>
-            <div class="balance" id="balance2">$1000</div>
-            <div class="controls-group">
-                <div class="action-row">
-                    <button class="btn-action" id="bet2-10">Bet $10</button>
-                    <button class="btn-action" id="bet2-50">Bet $50</button>
-                    <button class="btn-action" id="bet2-100">Bet $100</button>
+            <div class="balance" id="balanceRed">$1000</div>
+            <div class="controls-wrapper">
+                <div class="button-row">
+                    <button class="btn-action btn-red" onclick="bet('red', 10)">+$10</button>
+                    <button class="btn-action btn-red" onclick="bet('red', 50)">+$50</button>
+                    <button class="btn-action btn-red" onclick="bet('red', 100)">+$100</button>
                 </div>
-                <div class="action-row">
-                    <button class="btn-action btn-takeback" id="take2-10">Take -$10</button>
-                    <button class="btn-action btn-takeback" id="take2-50">Take -$50</button>
-                    <button class="btn-ready" id="ready2">Ready Up</button>
+                <div class="button-row">
+                    <button class="btn-action btn-red-take" onclick="takeBack('red', 10)">-$10</button>
+                    <button class="btn-action btn-red-take" onclick="takeBack('red', 50)">-$50</button>
+                    <button class="btn-action btn-red-take" onclick="takeBack('red', 100)">-$100</button>
                 </div>
+                <button class="btn-ready" id="readyBtnRed" onclick="toggleReady('red')">Ready Up</button>
+            </div>
+        </div>
+
+        <!-- Blue Player Side (Bottom - Upright) -->
+        <div class="player-section player-blue" id="sideBlue">
+            <div class="lock-overlay" id="lockBlue"><div class="lock-badge">Locked In</div></div>
+            <div class="player-header">
+                <input type="text" id="nameBlue" class="player-name" value="Blue Player" autocomplete="off">
+            </div>
+            <div class="balance" id="balanceBlue">$1000</div>
+            <div class="controls-wrapper">
+                <div class="button-row">
+                    <button class="btn-action btn-blue" onclick="bet('blue', 10)">+$10</button>
+                    <button class="btn-action btn-blue" onclick="bet('blue', 50)">+$50</button>
+                    <button class="btn-action btn-blue" onclick="bet('blue', 100)">+$100</button>
+                </div>
+                <div class="button-row">
+                    <button class="btn-action btn-blue-take" onclick="takeBack('blue', 10)">-$10</button>
+                    <button class="btn-action btn-blue-take" onclick="takeBack('blue', 50)">-$50</button>
+                    <button class="btn-action btn-blue-take" onclick="takeBack('blue', 100)">-$100</button>
+                </div>
+                <button class="btn-ready" id="readyBtnBlue" onclick="toggleReady('blue')">Ready Up</button>
             </div>
         </div>
     </div>
 
     <script>
         let state = {
-            name1: "Player 1",
-            name2: "Player 2",
-            balance1: 1000,
-            balance2: 1000,
+            nameRed: "Red Player",
+            nameBlue: "Blue Player",
+            balanceRed: 1000,
+            balanceBlue: 1000,
+            contributedRed: 0,
+            contributedBlue: 0,
             pot: 0,
-            contributed1: 0,
-            contributed2: 0,
-            ready1: false,
-            ready2: false,
+            readyRed: false,
+            readyBlue: false,
             lastRefillTime: Date.now()
         };
 
         const REFILL_INTERVAL = 24 * 60 * 60 * 1000;
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.onload = function() {
             loadState();
             checkDailyRefill();
             updateUI();
-            setupEventListeners();
             setInterval(updateTimerDisplay, 1000);
-        });
+
+            document.getElementById('nameRed').addEventListener('input', (e) => {
+                state.nameRed = e.target.value;
+                saveState();
+            });
+            document.getElementById('nameBlue').addEventListener('input', (e) => {
+                state.nameBlue = e.target.value;
+                saveState();
+            });
+        };
 
         function saveState() {
-            try {
-                localStorage.setItem('split_bet_hub_colored_state', JSON.stringify(state));
-            } catch (e) {
-                console.error("Storage error:", e);
-            }
+            localStorage.setItem('split_bet_hub_rotpot_v1', JSON.stringify(state));
         }
 
         function loadState() {
-            try {
-                const saved = localStorage.getItem('split_bet_hub_colored_state');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    state = { ...state, ...parsed };
-                }
-            } catch (e) {
-                console.error("Load error:", e);
+            const saved = localStorage.getItem('split_bet_hub_rotpot_v1');
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch(e) { console.error(e); }
             }
         }
 
         function checkDailyRefill() {
             const now = Date.now();
             const elapsed = now - state.lastRefillTime;
-
             if (elapsed >= REFILL_INTERVAL || isNaN(elapsed)) {
                 const cycles = Math.max(1, Math.floor(elapsed / REFILL_INTERVAL));
-                state.balance1 += (1000 * cycles);
-                state.balance2 += (1000 * cycles);
+                state.balanceRed += (1000 * cycles);
+                state.balanceBlue += (1000 * cycles);
                 state.lastRefillTime = now;
                 saveState();
             }
@@ -374,124 +365,81 @@
 
         function updateTimerDisplay() {
             const now = Date.now();
-            const nextRefillTime = state.lastRefillTime + REFILL_INTERVAL;
-            let timeLeft = nextRefillTime - now;
-
+            const nextTime = state.lastRefillTime + REFILL_INTERVAL;
+            let timeLeft = nextTime - now;
             if (timeLeft <= 0) {
                 checkDailyRefill();
                 timeLeft = REFILL_INTERVAL;
             }
-
             const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
             const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
             const seconds = Math.floor((timeLeft / 1000) % 60);
 
-            const banner = document.getElementById('timerBanner');
-            if (banner) {
-                banner.innerText = `Next $1k Refill: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            }
+            document.getElementById('timerBanner').innerText = 
+                `Next $1k Refill: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
         function updateUI() {
-            const name1El = document.getElementById('name1');
-            const name2El = document.getElementById('name2');
-            const bal1El = document.getElementById('balance1');
-            const bal2El = document.getElementById('balance2');
-            const potEl = document.getElementById('potAmount');
-            const ready1Btn = document.getElementById('ready1');
-            const ready2Btn = document.getElementById('ready2');
-            const statusBanner = document.getElementById('statusBanner');
-
-            if (document.activeElement !== name1El) name1El.value = state.name1;
-            if (document.activeElement !== name2El) name2El.value = state.name2;
-
-            bal1El.innerText = '$' + state.balance1;
-            bal2El.innerText = '$' + state.balance2;
-            potEl.innerText = '$' + state.pot;
-
-            if (state.ready1) {
-                ready1Btn.classList.add('ready');
-                ready1Btn.innerText = 'Ready ✓';
-            } else {
-                ready1Btn.classList.remove('ready');
-                ready1Btn.innerText = 'Ready Up';
+            if (document.activeElement !== document.getElementById('nameRed')) {
+                document.getElementById('nameRed').value = state.nameRed;
+            }
+            if (document.activeElement !== document.getElementById('nameBlue')) {
+                document.getElementById('nameBlue').value = state.nameBlue;
             }
 
-            if (state.ready2) {
-                ready2Btn.classList.add('ready');
-                ready2Btn.innerText = 'Ready ✓';
+            document.getElementById('balanceRed').innerText = '$' + state.balanceRed;
+            document.getElementById('balanceBlue').innerText = '$' + state.balanceBlue;
+            document.getElementById('potAmount').innerText = '$' + state.pot;
+
+            const btnRed = document.getElementById('readyBtnRed');
+            const btnBlue = document.getElementById('readyBtnBlue');
+            const lockRed = document.getElementById('lockRed');
+            const lockBlue = document.getElementById('lockBlue');
+
+            if (state.readyRed) {
+                btnRed.innerText = "Ready!";
+                btnRed.classList.add('ready');
+                lockRed.classList.add('active');
             } else {
-                ready2Btn.classList.remove('ready');
-                ready2Btn.innerText = 'Ready Up';
+                btnRed.innerText = "Ready Up";
+                btnRed.classList.remove('ready');
+                lockRed.classList.remove('active');
             }
 
-            const bothReady = state.ready1 && state.ready2;
-            if (bothReady) {
-                statusBanner.style.display = 'block';
+            if (state.readyBlue) {
+                btnBlue.innerText = "Ready!";
+                btnBlue.classList.add('ready');
+                lockBlue.classList.add('active');
             } else {
-                statusBanner.style.display = 'none';
+                btnBlue.innerText = "Ready Up";
+                btnBlue.classList.remove('ready');
+                lockBlue.classList.remove('active');
             }
-
-            const lockBets = bothReady;
-
-            document.getElementById('bet1-10').disabled = lockBets || state.balance1 < 10;
-            document.getElementById('bet1-50').disabled = lockBets || state.balance1 < 50;
-            document.getElementById('bet1-100').disabled = lockBets || state.balance1 < 100;
-            document.getElementById('take1-10').disabled = lockBets || state.contributed1 < 10;
-            document.getElementById('take1-50').disabled = lockBets || state.contributed1 < 50;
-
-            document.getElementById('bet2-10').disabled = lockBets || state.balance2 < 10;
-            document.getElementById('bet2-50').disabled = lockBets || state.balance2 < 50;
-            document.getElementById('bet2-100').disabled = lockBets || state.balance2 < 100;
-            document.getElementById('take2-10').disabled = lockBets || state.contributed2 < 10;
-            document.getElementById('take2-50').disabled = lockBets || state.contributed2 < 50;
         }
 
-        function setupEventListeners() {
-            document.getElementById('name1').addEventListener('input', (e) => {
-                state.name1 = e.target.value.trim() || "Player 1";
-                saveState();
-            });
-
-            document.getElementById('name2').addEventListener('input', (e) => {
-                state.name2 = e.target.value.trim() || "Player 2";
-                saveState();
-            });
-
-            document.getElementById('bet1-10').addEventListener('click', () => placeBet(1, 10));
-            document.getElementById('bet1-50').addEventListener('click', () => placeBet(1, 50));
-            document.getElementById('bet1-100').addEventListener('click', () => placeBet(1, 100));
-
-            document.getElementById('bet2-10').addEventListener('click', () => placeBet(2, 10));
-            document.getElementById('bet2-50').addEventListener('click', () => placeBet(2, 50));
-            document.getElementById('bet2-100').addEventListener('click', () => placeBet(2, 100));
-
-            document.getElementById('take1-10').addEventListener('click', () => takeBack(1, 10));
-            document.getElementById('take1-50').addEventListener('click', () => takeBack(1, 50));
-
-            document.getElementById('take2-10').addEventListener('click', () => takeBack(2, 10));
-            document.getElementById('take2-50').addEventListener('click', () => takeBack(2, 50));
-
-            document.getElementById('ready1').addEventListener('click', () => toggleReady(1));
-            document.getElementById('ready2').addEventListener('click', () => toggleReady(2));
-
-            document.getElementById('award1').addEventListener('click', () => awardPot(1));
-            document.getElementById('award2').addEventListener('click', () => awardPot(2));
+        function toggleReady(player) {
+            if (player === 'red') {
+                state.readyRed = !state.readyRed;
+            } else {
+                state.readyBlue = !state.readyBlue;
+            }
+            saveState();
+            updateUI();
         }
 
-        function placeBet(player, amount) {
-            if (state.ready1 && state.ready2) return;
+        function bet(player, amount) {
+            if (state.readyRed && state.readyBlue) return;
 
-            if (player === 1) {
-                if (state.balance1 >= amount) {
-                    state.balance1 -= amount;
-                    state.contributed1 += amount;
+            if (player === 'red') {
+                if (state.balanceRed >= amount) {
+                    state.balanceRed -= amount;
+                    state.contributedRed += amount;
                     state.pot += amount;
                 }
             } else {
-                if (state.balance2 >= amount) {
-                    state.balance2 -= amount;
-                    state.contributed2 += amount;
+                if (state.balanceBlue >= amount) {
+                    state.balanceBlue -= amount;
+                    state.contributedBlue += amount;
                     state.pot += amount;
                 }
             }
@@ -500,32 +448,22 @@
         }
 
         function takeBack(player, amount) {
-            if (state.ready1 && state.ready2) return;
+            if (state.readyRed && state.readyBlue) return;
 
-            if (player === 1) {
-                const actualTake = Math.min(amount, state.contributed1);
-                if (actualTake > 0) {
-                    state.contributed1 -= actualTake;
-                    state.pot -= actualTake;
-                    state.balance1 += actualTake;
+            if (player === 'red') {
+                const refund = Math.min(amount, state.contributedRed);
+                if (refund > 0) {
+                    state.balanceRed += refund;
+                    state.contributedRed -= refund;
+                    state.pot -= refund;
                 }
             } else {
-                const actualTake = Math.min(amount, state.contributed2);
-                if (actualTake > 0) {
-                    state.contributed2 -= actualTake;
-                    state.pot -= actualTake;
-                    state.balance2 += actualTake;
+                const refund = Math.min(amount, state.contributedBlue);
+                if (refund > 0) {
+                    state.balanceBlue += refund;
+                    state.contributedBlue -= refund;
+                    state.pot -= refund;
                 }
-            }
-            saveState();
-            updateUI();
-        }
-
-        function toggleReady(player) {
-            if (player === 1) {
-                state.ready1 = !state.ready1;
-            } else {
-                state.ready2 = !state.ready2;
             }
             saveState();
             updateUI();
@@ -534,18 +472,39 @@
         function awardPot(player) {
             if (state.pot <= 0) return;
 
-            if (player === 1) {
-                state.balance1 += state.pot;
+            if (player === 'red') {
+                state.balanceRed += state.pot;
             } else {
-                state.balance2 += state.pot;
+                state.balanceBlue += state.pot;
             }
 
-            state.pot = 0;
-            state.contributed1 = 0;
-            state.contributed2 = 0;
-            state.ready1 = false;
-            state.ready2 = false;
+            resetRound();
+        }
 
+        function tiePot() {
+            if (state.pot <= 0) return;
+
+            const refundRed = state.contributedRed;
+            const refundBlue = state.contributedBlue;
+
+            if (refundRed + refundBlue === state.pot) {
+                state.balanceRed += refundRed;
+                state.balanceBlue += refundBlue;
+            } else {
+                const half = Math.floor(state.pot / 2);
+                state.balanceRed += half;
+                state.balanceBlue += (state.pot - half);
+            }
+
+            resetRound();
+        }
+
+        function resetRound() {
+            state.pot = 0;
+            state.contributedRed = 0;
+            state.contributedBlue = 0;
+            state.readyRed = false;
+            state.readyBlue = false;
             saveState();
             updateUI();
         }
