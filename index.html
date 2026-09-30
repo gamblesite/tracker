@@ -120,7 +120,7 @@
         /* Central Floating Pot HUD - Left & Rotated 90 deg counter-clockwise */
         .central-hud {
             position: absolute;
-            top: 65%;
+            top: 62%;
             left: 85px;
             transform: translateY(-50%) rotate(-90deg);
             background: #1c1c1e;
@@ -168,23 +168,45 @@
         .btn-award-2 { background: #007aff; color: #fff; }
         .btn-tie { background: #8e8e93; color: #fff; width: 100%; }
 
-        /* Timer Banner */
-        .timer-banner {
+        /* Floating Control Bar for Timer & Manual Backup */
+        .utility-bar {
             position: absolute;
-            top: 6px;
-            right: 10px;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 20;
+        }
+
+        .util-btn {
+            background: #2c2c2e;
+            color: #fff;
+            border: 1px solid #3a3a3c;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .util-btn:active { background: #48484a; }
+
+        .timer-banner {
             font-size: 10px;
             color: #8e8e93;
-            background: rgba(255,255,255,0.05);
-            padding: 2px 8px;
-            border-radius: 20px;
-            z-index: 5;
+            background: rgba(255,255,255,0.07);
+            padding: 4px 8px;
+            border-radius: 6px;
         }
     </style>
 </head>
 <body>
 
-    <div class="timer-banner" id="timerBanner">Refill: --:--:--</div>
+    <div class="utility-bar">
+        <button class="util-btn" onclick="exportBackup()">Backup</button>
+        <button class="util-btn" onclick="importBackup()">Restore</button>
+        <div class="timer-banner" id="timerBanner">Refill: --:--:--</div>
+    </div>
 
     <!-- Player 1 Side (Top - Red & Flipped 180deg) -->
     <div class="player-side player-1">
@@ -254,19 +276,43 @@
 
         function saveState() {
             try {
-                localStorage.setItem('split_bet_hub_v4_state', JSON.stringify(state));
+                localStorage.setItem('split_bet_hub_v6_state', JSON.stringify(state));
             } catch(e) {
                 console.error("Storage save failed", e);
             }
         }
 
         function loadState() {
-            const saved = localStorage.getItem('split_bet_hub_v4_state');
+            const saved = localStorage.getItem('split_bet_hub_v6_state');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
                     state = { ...state, ...parsed };
                 } catch(e) { console.error("Storage load failed", e); }
+            }
+        }
+
+        function exportBackup() {
+            const dataStr = JSON.stringify(state);
+            navigator.clipboard.writeText(dataStr).then(() => {
+                alert("Backup code copied! Paste it into your Notes app as a backup.");
+            }).catch(() => {
+                prompt("Copy your backup code below:", dataStr);
+            });
+        }
+
+        function importBackup() {
+            const input = prompt("Paste your saved backup code here:");
+            if (input) {
+                try {
+                    const parsed = JSON.parse(input);
+                    state = { ...state, ...parsed };
+                    saveState();
+                    updateUI();
+                    alert("Balances and progress restored successfully!");
+                } catch(e) {
+                    alert("Invalid backup code formatting.");
+                }
             }
         }
 
