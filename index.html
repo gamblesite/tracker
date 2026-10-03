@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Split Screen Bet Hub Mobile</title>
+    <title>Dynamic Sector Bet Hub</title>
     <style>
         * {
             box-sizing: border-box;
@@ -32,14 +32,13 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            z-index: 100;
+            z-index: 50;
         }
 
         .util-btn {
-            background: rgba(44, 44, 46, 0.8);
-            backdrop-filter: blur(4px);
+            background: #2c2c2e;
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid #3a3a3c;
             padding: 4px 8px;
             font-size: 9px;
             font-weight: 700;
@@ -50,35 +49,24 @@
 
         .timer-banner {
             font-size: 9px;
-            color: #fff;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
+            color: #8e8e93;
+            background: rgba(255,255,255,0.07);
             padding: 4px 6px;
             border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .slices-container {
+        /* Full Screen Sector Background Container */
+        .sectors-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            overflow: hidden;
             z-index: 1;
-        }
-
-        .conic-bg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200vmax;
-            height: 200vmax;
-            transform: translate(-50%, -50%);
             pointer-events: none;
         }
 
-        /* Central Arena / Pot */
+        /* Central Betting Arena / Pot */
         .central-arena {
             position: absolute;
             top: 50%;
@@ -87,31 +75,31 @@
             width: 120px;
             height: 120px;
             background: #151518;
-            border: 3px solid #3a3a3c;
+            border: 2px solid #3a3a3c;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 50;
+            z-index: 30;
             box-shadow: 0 0 25px rgba(0,0,0,0.9);
             padding: 6px;
             text-align: center;
-            transition: transform 0.2s ease;
+            transition: transform 0.3s ease;
         }
 
         .pot-title {
-            font-size: 7px;
+            font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #8e8e93;
         }
 
         .pot-amount {
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 800;
             color: #ffcc00;
-            margin: 1px 0;
+            margin: 1px 0 4px 0;
         }
 
         .pot-actions {
@@ -120,26 +108,10 @@
             gap: 2px;
             width: 100%;
             justify-content: center;
-            max-height: 45px;
-            overflow-y: auto;
         }
 
         .pot-actions button {
             padding: 2px 4px;
-            font-size: 6px;
-            font-weight: 700;
-            border-radius: 3px;
-            border: none;
-            cursor: pointer;
-            color: #fff;
-        }
-
-        .btn-add-player {
-            background: #34c759;
-            color: #fff;
-            margin-top: 2px;
-            width: 100%;
-            padding: 2px;
             font-size: 7px;
             font-weight: 700;
             border-radius: 3px;
@@ -147,6 +119,21 @@
             cursor: pointer;
         }
 
+        .btn-add-player {
+            background: #34c759;
+            color: #fff;
+            margin-top: 3px;
+            width: 100%;
+            padding: 2px;
+            font-size: 7px;
+            font-weight: 700;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            z-index: 40;
+        }
+
+        /* Dynamic Player Slot Controls Container */
         .player-slot {
             position: absolute;
             display: flex;
@@ -154,14 +141,9 @@
             justify-content: center;
             align-items: center;
             padding: 6px;
-            width: 155px;
-            height: 115px;
-            border-radius: 10px;
-            z-index: 20;
-            background: rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(2px);
-            border: 1px solid rgba(255,255,255,0.25);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            width: 150px;
+            height: 110px;
+            z-index: 10;
         }
 
         .player-header {
@@ -173,34 +155,35 @@
 
         .player-name {
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 600;
             background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 1px 6px;
-            border-radius: 4px;
+            border: none;
             color: #fff;
             text-align: center;
-            width: 85px;
+            width: 75px;
+            padding: 2px;
+            border-radius: 4px;
+            border-bottom: 1px dashed transparent;
         }
-        .player-name:focus { outline: none; border-color: #fff; }
+        .player-name:focus { border-bottom: 1px dashed #fff; outline: none; }
 
         .btn-delete {
-            background: rgba(0,0,0,0.5);
+            background: #ff3b30;
             color: #fff;
             border: none;
             border-radius: 3px;
             font-size: 7px;
-            padding: 2px 4px;
+            padding: 1px 4px;
             cursor: pointer;
             font-weight: bold;
         }
 
         .balance {
             font-size: 18px;
-            font-weight: 900;
+            font-weight: 800;
             letter-spacing: -0.5px;
             margin-bottom: 3px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         .action-row {
@@ -216,11 +199,9 @@
             border-radius: 4px;
             border: none;
             font-size: 8px;
-            font-weight: 800;
+            font-weight: 700;
             cursor: pointer;
-            background: rgba(0, 0, 0, 0.4);
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
         }
         .btn-action:active { opacity: 0.7; }
         .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -231,15 +212,10 @@
             border-radius: 4px;
             border: none;
             font-size: 9px;
-            font-weight: 800;
+            font-weight: 700;
             cursor: pointer;
-            background: rgba(0, 0, 0, 0.5);
+            background: #3a3a3c;
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .btn-ready.ready {
-            background: #ffffff !important;
-            color: #000 !important;
         }
     </style>
 </head>
@@ -251,6 +227,9 @@
         <div class="timer-banner" id="timerBanner">Refill: --:--:--</div>
     </div>
 
+    <!-- Full Screen Slices Background -->
+    <div class="sectors-container" id="sectorsContainer"></div>
+
     <!-- Central Arena / Pot -->
     <div class="central-arena" id="centralArena">
         <div class="pot-title">Pot</div>
@@ -259,19 +238,16 @@
         <button class="btn-add-player" id="addPlayerBtn" onclick="addPlayer()">+ Add Player</button>
     </div>
 
-    <!-- Pizza Slices Conic Gradient Background Container -->
-    <div class="slices-container" id="slicesContainer"></div>
-
-    <!-- Dynamic Player Slots Container -->
+    <!-- Dynamic Slots Container -->
     <div id="playersContainer"></div>
 
     <script>
-        const TEAM_THEMES = [
-            { name: "Red", solid: "#991b1b", buttonBg: "#991b1b" },     // 0: Red
-            { name: "Blue", solid: "#1e40af", buttonBg: "#1e40af" },    // 1: Blue
-            { name: "Orange", solid: "#c2410c", buttonBg: "#c2410c" },  // 2: Orange
-            { name: "Green", solid: "#166534", buttonBg: "#166534" },   // 3: Green
-            { name: "Purple", solid: "#6b21a8", buttonBg: "#6b21a8" }   // 4: Purple
+        const THEMES = [
+            { name: "Red", border: "#ff3b30", btn: "#ff3b30", rgba: "rgba(255, 59, 48, 0.35)" },     // 1: Red
+            { name: "Blue", border: "#007aff", btn: "#007aff", rgba: "rgba(0, 122, 255, 0.35)" },    // 2: Blue
+            { name: "Orange", border: "#ff9500", btn: "#ff9500", rgba: "rgba(255, 149, 0, 0.35)" },  // 3: Orange
+            { name: "Green", border: "#34c759", btn: "#34c759", rgba: "rgba(52, 199, 89, 0.35)" },   // 4: Green
+            { name: "Purple", border: "#af52de", btn: "#af52de", rgba: "rgba(175, 82, 222, 0.35)" } // 5: Purple
         ];
 
         let state = {
@@ -288,23 +264,33 @@
             checkDailyRefill();
             updateUI();
             setInterval(updateTimerDisplay, 1000);
-            window.addEventListener('resize', updateUI);
         };
 
         function saveState() {
             try {
-                localStorage.setItem('split_screen_bet_hub_state', JSON.stringify(state));
+                localStorage.setItem('dynamic_sector_hub_state', JSON.stringify({ lastClaimedDate: state.lastClaimedDate }));
+                sessionStorage.setItem('dynamic_sector_hub_session', JSON.stringify(state));
             } catch(e) { console.error(e); }
         }
 
         function loadState() {
-            const saved = localStorage.getItem('split_screen_bet_hub_state');
+            const sessionSaved = sessionStorage.getItem('dynamic_sector_hub_session');
+            if (sessionSaved) {
+                try {
+                    const parsed = JSON.parse(sessionSaved);
+                    state = { ...state, ...parsed };
+                    return;
+                } catch(e) { console.error(e); }
+            }
+
+            const saved = localStorage.getItem('dynamic_sector_hub_state');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    state = { ...state, ...parsed };
+                    if (parsed.lastClaimedDate) state.lastClaimedDate = parsed.lastClaimedDate;
                 } catch(e) { console.error(e); }
             }
+            saveState();
         }
 
         function getESTDate(date = new Date()) {
@@ -372,11 +358,11 @@
 
         function exportBackup() {
             let dataString = state.players.map(p => `${p.name}:$${p.balance}`).join(',');
-            prompt("Your current player balances backup code:", dataString);
+            prompt("Copy your backup code below:", dataString);
         }
 
         function importBackup() {
-            const input = prompt("Enter backup string (e.g. Red Player:$1200,Blue Player:$800):");
+            const input = prompt("Paste your backup code (e.g. Red Player:$1200,Blue Player:$800):");
             if (input) {
                 try {
                     let parts = input.split(',');
@@ -384,26 +370,41 @@
                         let sub = part.split(':');
                         if (sub.length === 2) {
                             let pName = sub[0].trim();
-                            let pVal = parseInt(sub[1].replace('$', ''), 10);
-                            let found = state.players.find(p => p.name === pName);
-                            if (found && !isNaN(pVal)) found.balance = pVal;
+                            let rawVal = sub[1].trim().replace('$', '').replace(/,/g, '');
+                            let pVal = parseInt(rawVal, 10);
+                            
+                            if (!isNaN(pVal)) {
+                                let found = state.players.find(p => p.name.toLowerCase() === pName.toLowerCase());
+                                if (found) {
+                                    found.balance = pVal;
+                                } else if (state.players.length < 5) {
+                                    state.players.push({
+                                        id: Date.now() + Math.random(),
+                                        name: pName,
+                                        balance: pVal,
+                                        contributed: 0,
+                                        ready: false,
+                                        fixed: state.players.length < 2
+                                    });
+                                }
+                            }
                         }
                     });
                     saveState();
                     updateUI();
-                    alert("Balances restored!");
-                } catch(e) { alert("Invalid format."); }
+                    alert("Balances successfully restored!");
+                } catch(e) {
+                    alert("Invalid backup format. Please ensure it matches Name:$Balance separated by commas.");
+                }
             }
         }
 
         function addPlayer() {
             if (state.players.length >= 5) return;
             const newId = Date.now();
-            const count = state.players.length;
-            let defaultNames = ["", "", "Orange Player", "Green Player", "Purple Player"];
             state.players.push({
                 id: newId,
-                name: defaultNames[count] || `Player ${count + 1}`,
+                name: `Player ${state.players.length + 1}`,
                 balance: 1000,
                 contributed: 0,
                 ready: false,
@@ -417,7 +418,7 @@
             let idx = state.players.findIndex(p => p.id === id);
             if (idx === -1 || state.players[idx].fixed) return;
 
-            let p = state.players[idx];
+            let p = state.players.find(x => x.id === id);
             if (p.contributed > 0) {
                 p.balance += p.contributed;
                 state.pot -= p.contributed;
@@ -429,29 +430,24 @@
         }
 
         function updateUI() {
-            const slicesContainer = document.getElementById('slicesContainer');
-            const playersContainer = document.getElementById('playersContainer');
-            slicesContainer.innerHTML = "";
-            playersContainer.innerHTML = "";
+            const container = document.getElementById('playersContainer');
+            const sectorsContainer = document.getElementById('sectorsContainer');
+            container.innerHTML = "";
+            sectorsContainer.innerHTML = "";
 
             const N = state.players.length;
             const angleStep = 360 / N;
 
-            // 1. Build conic-gradient string for N equal sectors
             let gradientStops = [];
-            for (let i = 0; i < N; i++) {
-                let theme = TEAM_THEMES[i % TEAM_THEMES.length];
-                let startDeg = i * angleStep;
-                let endDeg = (i + 1) * angleStep;
-                gradientStops.push(`${theme.solid} ${startDeg}deg ${endDeg}deg`);
-            }
+            let currentAngle = 0;
+            state.players.forEach((p, index) => {
+                let theme = THEMES[index % THEMES.length];
+                let nextAngle = currentAngle + angleStep;
+                gradientStops.push(`${theme.rgba} ${currentAngle}deg ${nextAngle}deg`);
+                currentAngle = nextAngle;
+            });
+            sectorsContainer.style.background = `conic-gradient(from 0deg at 50% 50%, ${gradientStops.join(', ')})`;
 
-            let conicDiv = document.createElement('div');
-            conicDiv.className = 'conic-bg';
-            conicDiv.style.background = `conic-gradient(${gradientStops.join(', ')})`;
-            slicesContainer.appendChild(conicDiv);
-
-            // 2. Rotate central pot to face the Blue team exactly
             let blueIndex = state.players.findIndex(p => p.id === 2);
             if (blueIndex === -1) blueIndex = 1;
             let blueAngle = blueIndex * angleStep;
@@ -461,18 +457,16 @@
 
             let allReady = N > 0 && state.players.every(p => p.ready);
 
-            // 3. Position and orient each player slot
             state.players.forEach((p, index) => {
-                let theme = TEAM_THEMES[index % TEAM_THEMES.length];
                 let slotDiv = document.createElement('div');
-                slotDiv.className = 'player-slot';
+                slotDiv.className = `player-slot`;
 
-                let angleDeg = index * angleStep;
-                let centerAngleDeg = angleDeg + (angleStep / 2) - 90;
-                let angleRad = centerAngleDeg * (Math.PI / 180);
+                let theme = THEMES[index % THEMES.length];
+                let angleDeg = index * angleStep - 90 + (angleStep / 2);
+                let angleRad = angleDeg * (Math.PI / 180);
                 
-                let rx = window.innerWidth < 400 ? 30 : 32;
-                let ry = window.innerHeight < 700 ? 28 : 30;
+                let rx = window.innerWidth < 400 ? 30 : 34;
+                let ry = window.innerHeight < 700 ? 28 : 32;
 
                 let leftPct = 50 + rx * Math.cos(angleRad);
                 let topPct = 50 + ry * Math.sin(angleRad);
@@ -480,10 +474,8 @@
                 slotDiv.style.left = leftPct + '%';
                 slotDiv.style.top = topPct + '%';
 
-                // Calculate outward facing rotation for all players including Red (id: 1)
-                let outwardRotation = centerAngleDeg + 90;
-                slotDiv.style.transform =
-                    `translate(-50%, -50%) rotate(${outwardRotation + 180}deg)`;
+                let outwardRotation = angleDeg + 90 + 180;
+                slotDiv.style.transform = `translate(-50%, -50%) rotate(${outwardRotation}deg)`;
 
                 let deleteBtnHtml = !p.fixed ? `<button class="btn-delete" onclick="removePlayer(${p.id})">X</button>` : '';
 
@@ -494,27 +486,25 @@
                     </div>
                     <div class="balance">$${p.balance}</div>
                     <div class="action-row">
-                        <button class="btn-action" ${allReady ? 'disabled' : ''} onclick="bet(${p.id}, 10)">10</button>
-                        <button class="btn-action" ${allReady ? 'disabled' : ''} onclick="bet(${p.id}, 50)">50</button>
-                        <button class="btn-action" ${allReady ? 'disabled' : ''} onclick="bet(${p.id}, 100)">100</button>
-                        <button class="btn-action" ${allReady ? 'disabled' : ''} onclick="takeBack(${p.id})">Back</button>
+                        <button class="btn-action" style="background:${theme.btn}" ${allReady ? 'disabled' : ''} onclick="bet(${p.id}, 10)">10</button>
+                        <button class="btn-action" style="background:${theme.btn}" ${allReady ? 'disabled' : ''} onclick="bet(${p.id}, 50)">50</button>
+                        <button class="btn-action" style="background:${theme.btn}" ${allReady ? 'disabled' : ''} onclick="bet(${p.id}, 100)">100</button>
+                        <button class="btn-action" style="background:${theme.btn}" ${allReady ? 'disabled' : ''} onclick="takeBack(${p.id})">Back</button>
                     </div>
-                    <button class="btn-ready ${p.ready ? 'ready' : ''}" onclick="toggleReady(${p.id})">${p.ready ? 'Ready!' : 'Ready Up'}</button>
+                    <button class="btn-ready ${p.ready ? 'ready' : ''}" style="${p.ready ? 'background:'+theme.btn : ''}" onclick="toggleReady(${p.id})">${p.ready ? 'Ready!' : 'Ready Up'}</button>
                 `;
-                playersContainer.appendChild(slotDiv);
+                container.appendChild(slotDiv);
             });
 
             document.getElementById('potAmount').innerText = '$' + state.pot;
             document.getElementById('addPlayerBtn').style.display = (N < 5) ? 'block' : 'none';
 
-            // 4. Populate pot award buttons with correct individual team colors
             let potButtonsHtml = "";
             state.players.forEach((p, index) => {
-                let theme = TEAM_THEMES[index % TEAM_THEMES.length];
-                let shortName = p.name.split(' ')[0];
-                potButtonsHtml += `<button onclick="awardPot(${p.id})" style="background:${theme.buttonBg};">${shortName} Wins</button>`;
+                let theme = THEMES[index % THEMES.length];
+                potButtonsHtml += `<button onclick="awardPot(${p.id})" style="background:${theme.btn}; color:#fff;">${p.name.split(' ')[0]} Wins</button>`;
             });
-            potButtonsHtml += `<button onclick="tiePot()" style="background:#4b5563;">Tie</button>`;
+            potButtonsHtml += `<button onclick="tiePot()" style="background:#8e8e93; color:#fff;">Tie</button>`;
             document.getElementById('potActionButtons').innerHTML = potButtonsHtml;
         }
 
