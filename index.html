@@ -21,6 +21,8 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Player Side Containers */
@@ -83,7 +85,7 @@
 
         .btn-action {
             flex: 1;
-            padding: 8px 4px;
+            padding: 10px 4px;
             border-radius: 8px;
             border: none;
             font-size: 12px;
@@ -103,7 +105,7 @@
         .btn-ready {
             width: 100%;
             max-width: 260px;
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             border: none;
             font-size: 13px;
@@ -120,7 +122,7 @@
         /* Central Floating Pot HUD - Left & Rotated 90 deg counter-clockwise */
         .central-hud {
             position: absolute;
-            top: 65%;
+            top: 62%;
             left: 85px;
             transform: translateY(-50%) rotate(-90deg);
             background: #1c1c1e;
@@ -156,7 +158,7 @@
 
         .pot-buttons button {
             flex: 1;
-            padding: 6px 0;
+            padding: 8px 0;
             border-radius: 6px;
             border: none;
             font-size: 10px;
@@ -183,7 +185,7 @@
             background: #2c2c2e;
             color: #fff;
             border: 1px solid #3a3a3c;
-            padding: 4px 8px;
+            padding: 6px 10px;
             font-size: 10px;
             font-weight: 700;
             border-radius: 6px;
@@ -195,7 +197,7 @@
             font-size: 10px;
             color: #8e8e93;
             background: rgba(255,255,255,0.07);
-            padding: 4px 8px;
+            padding: 6px 10px;
             border-radius: 6px;
         }
     </style>
@@ -262,10 +264,8 @@
             contributed2: 0,
             ready1: false,
             ready2: false,
-            lastRefillTime: Date.now()
+            lastClaimedDate: "" // Track last calendar date refill was given based on EST 8:15 AM
         };
-
-        const REFILL_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
 
         window.onload = function() {
             loadState();
@@ -276,14 +276,14 @@
 
         function saveState() {
             try {
-                localStorage.setItem('split_bet_hub_v6_state', JSON.stringify(state));
+                localStorage.setItem('split_bet_hub_v9_state', JSON.stringify(state));
             } catch(e) {
                 console.error("Storage save failed", e);
             }
         }
 
         function loadState() {
-            const saved = localStorage.getItem('split_bet_hub_v6_state');
+            const saved = localStorage.getItem('split_bet_hub_v9_state');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -292,51 +292,112 @@
             }
         }
 
-        function exportBackup() {
-            const dataStr = JSON.stringify(state);
-            navigator.clipboard.writeText(dataStr).then(() => {
-                alert("Backup code copied! Paste it into your Notes app as a backup.");
-            }).catch(() => {
-                prompt("Copy your backup code below:", dataStr);
-            });
+        // Helper to get current Date object adjusted/viewed in EST (America/New_York)
+        function getESTDate(date = new Date()) {
+            const options = { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(date);
+            let obj = {};
+            parts.forEach(p => { if (p.type !== 'literal') obj[p.type] = parseInt(p.value, 10); });
+            return obj; // returns {year, month, day, hour, minute, second} in EST
         }
 
-        function importBackup() {
-            const input = prompt("Paste your saved backup code here:");
-            if (input) {
-                try {
-                    const parsed = JSON.parse(input);
-                    state = { ...state, ...parsed };
-                    saveState();
-                    updateUI();
-                    alert("Balances and progress restored successfully!");
-                } catch(e) {
-                    alert("Invalid backup code formatting.");
-                }
+        // Returns a millisecond timestamp representing a specific hour:minute on a given EST calendar day
+        function getESTTimestampForTime(estObj, targetHour, targetMinute) {
+            // Construct a date string matching EST time representation
+            // We can calculate offset or use standard relative generation
+            const d = new Date();
+            // Format string to evaluate local conversion safely
+            const estString = `${estObj.year}-${String(estObj.month).padStart(2,'0')}-${String(estObj.day).padStart(2,'0')}T${String(targetHour).padStart(2,'0')}:${String(targetMinute).padStart(2,'0')}:00`;
+            
+            // Temporary trick to find exact UTC time for EST string
+            const tempDate = new Date(estString + "Z"); // parse as UTC baseline then adjust for EST (-5 or -4)
+            // Better approach: use Intl to find exact offset of America/New_York right now
+            const utcDate = new Date();
+            const estTimeFormatted = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', timeStyle: 'long', dateStyle: 'full' }).format(utcDate);
+            
+            // Let's compute target milestone timestamp directly via iterative offset check or standard target
+            // Standard EST is UTC-5, EDT is UTC-4. Let's let JS parser handle target date lookup accurately:
+            const targetStringString = `${estObj.year}-${String(estObj.month).padStart(2,'0')}-${String(estObj.day).padStart(2,'0')}T${String(targetHour).padStart(2,'0')}:${String(targetMinute).padStart(2,'0')}:00-05:00`;
+            let targetTime = new Date(targetStringString).getTime();
+            
+            // If daylight savings makes it EDT (-04:00), adjust automatically
+            const checkEst = getESTDate(new Date(targetTime));
+            if (checkEst.hour !== targetHour) {
+                const targetStringStringEDT = `${estObj.year}-${String(estObj.month).padStart(2,'0')}-${String(estObj.day).padStart(2,'0')}T${String(targetHour).padStart(2,'0')}:${String(targetMinute).padStart(2,'0')}:00-04:00`;
+                targetTime = new Date(targetStringStringEDT).getTime();
             }
+            return targetTime;
         }
 
         function checkDailyRefill() {
-            const now = Date.now();
-            const elapsed = now - state.lastRefillTime;
+            const estNow = getESTDate();
+            
+            // Find today's 8:15 AM EST timestamp
+            let target815Today = getESTTimestampForTime(estNow, 8, 15);
+            
+            // Current timestamp in general
+            const nowMs = Date.now();
+            
+            // Determine the active "refill cycle day key" (e.g. "2026-06-06")
+            // If current EST time is BEFORE 8:15 AM, the active cycle started at 8:15 AM YESTERDAY.
+            // If current EST time is AFTER 8:15 AM, the active cycle started at 8:15 AM TODAY.
+            let activeCycleDateKey = "";
+            let nextRefillMs = 0;
 
-            if (elapsed >= REFILL_INTERVAL || isNaN(elapsed) || state.lastRefillTime > now) {
-                const cycles = Math.max(1, Math.floor(elapsed / REFILL_INTERVAL));
-                state.balance1 += (1000 * cycles);
-                state.balance2 += (1000 * cycles);
-                state.lastRefillTime = now;
+            const currentMinutesFromMidnight = estNow.hour * 60 + estNow.minute;
+            const refillMinutesFromMidnight = 8 * 60 + 15; // 8:15 AM = 495 minutes
+
+            let baseDate = new Date();
+            if (currentMinutesFromMidnight < refillMinutesFromMidnight) {
+                // We are before 8:15 AM today. The latest refill happened yesterday at 8:15 AM.
+                let yesterday = new Date(baseDate.getTime() - 24 * 60 * 60 * 1000);
+                let estYesterday = getESTDate(yesterday);
+                activeCycleDateKey = `${estYesterday.year}-${estYesterday.month}-${estYesterday.day}`;
+                nextRefillMs = target815Today; // Today at 8:15 AM is the next refill!
+            } else {
+                // We are at or after 8:15 AM today. Latest refill happened today at 8:15 AM.
+                activeCycleDateKey = `${estNow.year}-${estNow.month}-${estNow.day}`;
+                // Next refill is tomorrow at 8:15 AM
+                let tomorrow = new Date(baseDate.getTime() + 24 * 60 * 60 * 1000);
+                let estTomorrow = getESTDate(tomorrow);
+                nextRefillMs = getESTTimestampForTime(estTomorrow, 8, 15);
+            }
+
+            // If user hasn't claimed for this active cycle yet, give them $1,000!
+            if (state.lastClaimedDate !== activeCycleDateKey) {
+                // If it's a brand new install / state has no lastClaimedDate, don't auto-grant free money on first boot unless desired, 
+                // but here we check if state initialized. If state.lastClaimedDate is undefined, set it to current to prevent instant inflation on fresh boot, or grant it.
+                if (state.lastClaimedDate === undefined || state.lastClaimedDate === "") {
+                    state.lastClaimedDate = activeCycleDateKey;
+                } else {
+                    state.balance1 += 1000;
+                    state.balance2 += 1000;
+                    state.lastClaimedDate = activeCycleDateKey;
+                }
                 saveState();
             }
         }
 
         function updateTimerDisplay() {
-            const now = Date.now();
-            const nextRefillTime = state.lastRefillTime + REFILL_INTERVAL;
-            let timeLeft = nextRefillTime - now;
+            const estNow = getESTDate();
+            const currentMinutesFromMidnight = estNow.hour * 60 + estNow.minute;
+            const refillMinutesFromMidnight = 8 * 60 + 15;
 
+            let baseDate = new Date();
+            let targetRefillTime = 0;
+
+            if (currentMinutesFromMidnight < refillMinutesFromMidnight) {
+                targetRefillTime = getESTTimestampForTime(estNow, 8, 15);
+            } else {
+                let tomorrow = new Date(baseDate.getTime() + 24 * 60 * 60 * 1000);
+                let estTomorrow = getESTDate(tomorrow);
+                targetRefillTime = getESTTimestampForTime(estTomorrow, 8, 15);
+            }
+
+            let timeLeft = targetRefillTime - Date.now();
             if (timeLeft <= 0) {
                 checkDailyRefill();
-                timeLeft = REFILL_INTERVAL;
+                timeLeft = 0;
             }
 
             const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
@@ -344,7 +405,32 @@
             const seconds = Math.floor((timeLeft / 1000) % 60);
 
             document.getElementById('timerBanner').innerText = 
-                `Refill: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                `Refill @ 8:15 AM EST: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // 4-Number / PIN Backup & Restore
+        function exportBackup() {
+            let pin1 = Math.abs(state.balance1) % 9000 + 1000;
+            let pin2 = Math.abs(state.balance2) % 9000 + 1000;
+            let shortPin = String(pin1).slice(0, 2) + String(pin2).slice(0, 2);
+            
+            prompt(`Your Backup Code (or exact balances):\n`, `${state.balance1},${state.balance2}`);
+        }
+
+        function importBackup() {
+            const input = prompt("Enter your backup balances (e.g. 1500,800):");
+            if (input) {
+                let nums = input.match(/-?\d+/g);
+                if (nums && nums.length >= 2) {
+                    state.balance1 = parseInt(nums[0], 10);
+                    state.balance2 = parseInt(nums[1], 10);
+                    saveState();
+                    updateUI();
+                    alert("Balances restored successfully!");
+                } else {
+                    alert("Please enter two numbers separated by a comma (e.g. 1500,800).");
+                }
+            }
         }
 
         function updateUI() {
