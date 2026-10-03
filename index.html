@@ -357,44 +357,26 @@
         }
 
         function exportBackup() {
-            let dataString = state.players.map(p => `${p.name}:$${p.balance}`).join(',');
-            prompt("Copy your backup code below:", dataString);
+            // Simplified export format: just comma-separated balances (e.g. "1000, 1200, 850")
+            let dataString = state.players.map(p => p.balance).join(',');
+            prompt("Copy simplified backup code:", dataString);
         }
 
         function importBackup() {
-            const input = prompt("Paste your backup code (e.g. Red Player:$1200,Blue Player:$800):");
+            const input = prompt("Paste simplified backup code (e.g. 1000,1200,850):");
             if (input) {
                 try {
-                    let parts = input.split(',');
-                    parts.forEach(part => {
-                        let sub = part.split(':');
-                        if (sub.length === 2) {
-                            let pName = sub[0].trim();
-                            let rawVal = sub[1].trim().replace('$', '').replace(/,/g, '');
-                            let pVal = parseInt(rawVal, 10);
-                            
-                            if (!isNaN(pVal)) {
-                                let found = state.players.find(p => p.name.toLowerCase() === pName.toLowerCase());
-                                if (found) {
-                                    found.balance = pVal;
-                                } else if (state.players.length < 5) {
-                                    state.players.push({
-                                        id: Date.now() + Math.random(),
-                                        name: pName,
-                                        balance: pVal,
-                                        contributed: 0,
-                                        ready: false,
-                                        fixed: state.players.length < 2
-                                    });
-                                }
-                            }
+                    let numbers = input.split(',').map(n => parseInt(n.trim().replace(/[^0-9-]/g, ''), 10));
+                    numbers.forEach((val, index) => {
+                        if (!isNaN(val) && state.players[index]) {
+                            state.players[index].balance = val;
                         }
                     });
                     saveState();
                     updateUI();
                     alert("Balances successfully restored!");
                 } catch(e) {
-                    alert("Invalid backup format. Please ensure it matches Name:$Balance separated by commas.");
+                    alert("Invalid format. Please enter comma-separated numbers.");
                 }
             }
         }
